@@ -1,10 +1,8 @@
 import os
-import json
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 from google.cloud import storage
-from google.oauth2 import service_account
 import certifi
 import datetime
 
@@ -19,24 +17,15 @@ os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
 # -----------------------------
 BUCKET_NAME = "btpss-dashboard-data"
 
+# 🔥 IMPORTANT: Render Secret File path
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/etc/secrets/GOOGLE_APPLICATION_CREDENTIALS_JSON"
+
 # -----------------------------
-# GCP CLIENT (FROM RENDER ENV)
+# GCP CLIENT
 # -----------------------------
 @st.cache_resource
 def get_client():
-    json_str = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
-
-    if not json_str:
-        raise Exception("Missing GOOGLE_APPLICATION_CREDENTIALS_JSON in environment variables")
-
-    credentials_dict = json.loads(json_str)
-
-    credentials = service_account.Credentials.from_service_account_info(
-        credentials_dict
-    )
-
-    return storage.Client(credentials=credentials)
-
+    return storage.Client()
 
 client = get_client()
 
@@ -156,11 +145,6 @@ if not df2.empty:
     fig.update_traces(textposition="outside")
 
     st.plotly_chart(fig, use_container_width=True)
-
-else:
-    st.warning("No intervention data for selected week")
-
-st.caption("Source: Google Cloud Storage (CSV files)")
 
 else:
     st.warning("No intervention data for selected week")
