@@ -3,8 +3,10 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from google.cloud import storage
+from google.oauth2 import service_account
 import certifi
 import datetime
+import json
 
 # -----------------------------
 # SSL FIX
@@ -17,20 +19,28 @@ os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
 # -----------------------------
 BUCKET_NAME = "btpss-dashboard-data"
 
-# 🔥 IMPORTANT: Render Secret File path
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/etc/secrets/GOOGLE_APPLICATION_CREDENTIALS_JSON"
-
 # -----------------------------
-# GCP CLIENT
+# GCP CLIENT (ENV JSON)
 # -----------------------------
 @st.cache_resource
 def get_client():
-    return storage.Client()
+    gcp_json = os.environ.get("GCP_SERVICE_ACCOUNT_JSON")
+
+    if not gcp_json:
+        raise ValueError("❌ GCP_SERVICE_ACCOUNT_JSON not set")
+
+    credentials_dict = json.loads(gcp_json)
+
+    credentials = service_account.Credentials.from_service_account_info(
+        credentials_dict
+    )
+
+    return storage.Client(credentials=credentials)
 
 client = get_client()
 
 # -----------------------------
-# LOAD CSV FROM GCP
+# LOAD CSV
 # -----------------------------
 @st.cache_data(ttl=600)
 def load_csv_from_gcp(file_name):
@@ -54,52 +64,67 @@ page = st.sidebar.selectbox(
 # -----------------------------
 if page == "BTP Analytics":
     st.title("📊 BTP Analytics Dashboard")
-
     metrics_df = load_csv_from_gcp("btp_metrics.csv")
     intervention_df = load_csv_from_gcp("btp_interventions_4weeks.csv")
-
 else:
     st.title("📊 SS Analytics Dashboard")
-
     metrics_df = load_csv_from_gcp("ss_metrics.csv")
     intervention_df = load_csv_from_gcp("ss_interventions_4weeks.csv")
 
 # -----------------------------
 # MAIN METRICS
 # -----------------------------
-st.subheader(":pushpin: Onboarding, WAU & Power Users")
+st.subheader("📌 Key Metrics")
 
 if not metrics_df.empty:
     row = metrics_df.iloc[0]
 
-    # ---------- Row 1 ----------
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Total Users", int(row.get("total_users", 0)))
-    col2.metric("Onboarded Users", int(row.get("onboarding_users", 0)))
-    col3.metric("% Onboarding", f"{row.get('onboarding_percentage', 0)}%")
-    col4.metric("Avg Weeks Active", f"{row.get('avg_weeks_active', 0)} weeks")
+    # Build dynamic metric list
+    metrics = [
+        ("Total Users", "total_users"),
+        ("Onboarded Users", "onboarding_users"),
+        ("% Onboarding", "onboarding_percentage", "%"),
+        ("Avg Weeks Active", "avg_weeks_active", " weeks"),
+        ("Age ≤ 36 Months", "age_36_users"),
+        ("WAU (Last Week)", "wau_users"),
+        ("% WAU", "wau_percentage", "%"),
+        ("Power Users", "power_users"),
+        ("Power Users %", "power_user_percentage", "%"),
+        ("Activated Users", "activated_users"),
+        ("Activated %", "activated_percentage", "%"),
+    ]
 
-    # ---------- Row 2 ----------
-    col5, col6, col7, col8 = st.columns(4)
-    col5.metric("Age ≤ 36 Months", int(row.get("age_36_users", 0)))
-    col6.metric("WAU (Last Week)", int(row.get("wau_users", 0)))
-    col7.metric("% WAU", f"{row.get('wau_percentage', 0)}%")
-    col8.metric("Power Users", int(row.get("power_users", 0)))
+    # Filter only existing metrics
+    available_metrics = [
+        m for m in metrics if m[1] in row
+    ]
 
-    # ---------- Row 3 ----------
-    col9, col10 = st.columns(2)
-    col9.metric("Power Users %", f"{row.get('power_user_percentage', 0)}%")
+    # Display in rows of 4
+    for i in range(0, len(available_metrics), 4):
+        cols = st.columns(4)
+        chunk = available_metrics[i:i+4]
 
-    # 🔥 SS ONLY METRICS
-    if page == "SS Analytics":
-        col11, col12 = st.columns(2)
-        col11.metric("Activated Users", int(row.get("activated_users", 0)))
-        col12.metric("Activated %", f"{row.get('activated_percentage', 0)}%")
+        for col, metric in zip(cols, chunk):
+            label = metric[0]
+            key = metric[1]
+            suffix = metric[2] if len(metric) > 2 else ""
+
+            value = row.get(key, 0)
+
+            # Format %
+            if suffix == "%":
+                display_value = f"{value}%"
+            elif suffix == " weeks":
+                display_value = f"{value} weeks"
+            else:
+                display_value = int(value)
+
+            col.metric(label, display_value)
 
 # -----------------------------
 # INTERVENTION SECTION
 # -----------------------------
-st.subheader(":package: Intervention Delivery Rate")
+st.subheader("📦 Intervention Delivery Rate")
 
 today = datetime.date.today()
 
@@ -119,34 +144,42 @@ if selected_sunday.weekday() != 6:
 st.write(f"Selected Week: {selected_sunday}")
 
 # -----------------------------
-# FILTER USING week_start
+# FILTER DATA
 # -----------------------------
-intervention_df["week_start"] = pd.to_datetime(intervention_df["week_start"])
+if not intervention_df.empty:
 
-df2 = intervention_df[
-    intervention_df["week_start"] == pd.to_datetime(selected_sunday)
-]
+    intervention_df["week_start"] = pd.to_datetime(intervention_df["week_start"])
 
-# -----------------------------
-# DISPLAY
-# -----------------------------
-if not df2.empty:
+    df2 = intervention_df[
+        intervention_df["week_start"] == pd.to_datetime(selected_sunday)
+    ]
 
-    st.dataframe(df2)
+    # -----------------------------
+    # DISPLAY
+    # -----------------------------
+    if not df2.empty:
 
-    fig = px.bar(
-        df2,
-        x="campaign_type",
-        y="delivery_percentage",
-        text="delivery_percentage",
-        title="Delivery % by Campaign Type"
-    )
+        st.dataframe(df2, use_container_width=True)
 
-    fig.update_traces(textposition="outside")
+        fig = px.bar(
+            df2,
+            x="campaign_type",
+            y="delivery_percentage",
+            text="delivery_percentage",
+            title="Delivery % by Campaign Type"
+        )
 
-    st.plotly_chart(fig, use_container_width=True)
+        fig.update_traces(textposition="outside")
+
+        st.plotly_chart(fig, use_container_width=True)
+
+    else:
+        st.warning("No intervention data for selected week")
 
 else:
-    st.warning("No intervention data for selected week")
+    st.warning("Intervention dataset is empty")
 
+# -----------------------------
+# FOOTER
+# -----------------------------
 st.caption("Source: Google Cloud Storage (CSV files)")
