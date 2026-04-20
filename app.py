@@ -50,7 +50,6 @@ def load_csv_from_gcp(file_name):
     data = blob.download_as_bytes()
     return pd.read_csv(pd.io.common.BytesIO(data))
 
-
 # -----------------------------
 # PAGE CONFIG
 # -----------------------------
@@ -62,7 +61,7 @@ page = st.sidebar.selectbox(
 )
 
 # -----------------------------
-# LOAD DATA BASED ON SELECTION
+# LOAD DATA
 # -----------------------------
 if page == "BTP Analytics":
     st.title("📊 BTP Analytics Dashboard")
@@ -76,7 +75,6 @@ else:
     metrics_df = load_csv_from_gcp("ss_metrics.csv")
     intervention_df = load_csv_from_gcp("ss_interventions_4weeks.csv")
 
-
 # -----------------------------
 # MAIN METRICS
 # -----------------------------
@@ -85,21 +83,29 @@ st.subheader(":pushpin: Onboarding, WAU & Power Users")
 if not metrics_df.empty:
     row = metrics_df.iloc[0]
 
+    # ---------- Row 1 ----------
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Total Users", int(row["total_users"]))
-    col2.metric("Onboarded Users", int(row["onboarding_users"]))
-    col3.metric("% Onboarding", f"{row['onboarding_percentage']}%")
-    col4.metric("Avg Weeks Active", f"{row['avg_weeks_active']} weeks")
+    col1.metric("Total Users", int(row.get("total_users", 0)))
+    col2.metric("Onboarded Users", int(row.get("onboarding_users", 0)))
+    col3.metric("% Onboarding", f"{row.get('onboarding_percentage', 0)}%")
+    col4.metric("Avg Weeks Active", f"{row.get('avg_weeks_active', 0)} weeks")
 
+    # ---------- Row 2 ----------
     col5, col6, col7, col8 = st.columns(4)
-    col5.metric("Age ≤ 36 Months", int(row["age_36_users"]))
-    col6.metric("WAU (Last Week)", int(row["wau_users"]))
-    col7.metric("% WAU", f"{row['wau_percentage']}%")
-    col8.metric("Power Users", int(row["power_users"]))
+    col5.metric("Age ≤ 36 Months", int(row.get("age_36_users", 0)))
+    col6.metric("WAU (Last Week)", int(row.get("wau_users", 0)))
+    col7.metric("% WAU", f"{row.get('wau_percentage', 0)}%")
+    col8.metric("Power Users", int(row.get("power_users", 0)))
 
+    # ---------- Row 3 ----------
     col9, col10 = st.columns(2)
-    col9.metric("Power Users %", f"{row['power_user_percentage']}%")
+    col9.metric("Power Users %", f"{row.get('power_user_percentage', 0)}%")
 
+    # 🔥 SS ONLY METRICS
+    if page == "SS Analytics":
+        col11, col12 = st.columns(2)
+        col11.metric("Activated Users", int(row.get("activated_users", 0)))
+        col12.metric("Activated %", f"{row.get('activated_percentage', 0)}%")
 
 # -----------------------------
 # INTERVENTION SECTION
@@ -107,6 +113,8 @@ if not metrics_df.empty:
 st.subheader(":package: Intervention Delivery Rate")
 
 today = datetime.date.today()
+
+# last completed Sunday
 last_sunday = today - datetime.timedelta(days=(today.weekday() + 1) % 7 + 7)
 
 selected_sunday = st.date_input(
@@ -114,6 +122,7 @@ selected_sunday = st.date_input(
     value=last_sunday
 )
 
+# enforce Sunday
 if selected_sunday.weekday() != 6:
     st.warning("⚠️ Please select a Sunday")
     st.stop()
@@ -147,6 +156,11 @@ if not df2.empty:
     fig.update_traces(textposition="outside")
 
     st.plotly_chart(fig, use_container_width=True)
+
+else:
+    st.warning("No intervention data for selected week")
+
+st.caption("Source: Google Cloud Storage (CSV files)")
 
 else:
     st.warning("No intervention data for selected week")
