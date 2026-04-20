@@ -24,7 +24,7 @@ BUCKET_NAME = "btpss-dashboard-data"
 # -----------------------------
 @st.cache_resource
 def get_client():
-    gcp_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+    gcp_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
 
     if not gcp_json:
         raise ValueError("❌ GCP_SERVICE_ACCOUNT_JSON not set")
