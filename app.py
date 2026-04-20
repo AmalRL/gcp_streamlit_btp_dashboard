@@ -1,8 +1,10 @@
 import os
+import json
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 from google.cloud import storage
+from google.oauth2 import service_account
 import certifi
 import datetime
 
@@ -17,14 +19,24 @@ os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
 # -----------------------------
 BUCKET_NAME = "btpss-dashboard-data"
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:/Users/Amal/Downloads/btpssdashboard-25c58d6c57a3.json"
-
 # -----------------------------
-# GCP CLIENT
+# GCP CLIENT (FROM RENDER ENV)
 # -----------------------------
 @st.cache_resource
 def get_client():
-    return storage.Client()
+    json_str = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+
+    if not json_str:
+        raise Exception("Missing GOOGLE_APPLICATION_CREDENTIALS_JSON in environment variables")
+
+    credentials_dict = json.loads(json_str)
+
+    credentials = service_account.Credentials.from_service_account_info(
+        credentials_dict
+    )
+
+    return storage.Client(credentials=credentials)
+
 
 client = get_client()
 
@@ -37,6 +49,7 @@ def load_csv_from_gcp(file_name):
     blob = bucket.blob(file_name)
     data = blob.download_as_bytes()
     return pd.read_csv(pd.io.common.BytesIO(data))
+
 
 # -----------------------------
 # PAGE CONFIG
@@ -63,6 +76,7 @@ else:
     metrics_df = load_csv_from_gcp("ss_metrics.csv")
     intervention_df = load_csv_from_gcp("ss_interventions_4weeks.csv")
 
+
 # -----------------------------
 # MAIN METRICS
 # -----------------------------
@@ -85,6 +99,7 @@ if not metrics_df.empty:
 
     col9, col10 = st.columns(2)
     col9.metric("Power Users %", f"{row['power_user_percentage']}%")
+
 
 # -----------------------------
 # INTERVENTION SECTION
