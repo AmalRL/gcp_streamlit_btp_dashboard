@@ -79,7 +79,10 @@ st.subheader("📌 Key Metrics")
 if not metrics_df.empty:
     row = metrics_df.iloc[0]
 
-    # Build dynamic metric list
+    # -----------------------------
+# METRIC CONFIG BASED ON PAGE
+# -----------------------------
+if page == "BTP Analytics":
     metrics = [
         ("Total Users", "total_users"),
         ("Onboarded Users", "onboarding_users"),
@@ -92,6 +95,21 @@ if not metrics_df.empty:
         ("Power Users %", "power_user_percentage", "%"),
         ("Activated Users", "activated_users"),
         ("Activated %", "activated_percentage", "%"),
+    ]
+
+else:  # SS Analytics
+    metrics = [
+        ("Total DB Users", "total_users"),
+        ("Matched Users", "total_matched_users"),
+        ("Onboarded Users", "onboarding_users"),
+        ("% Onboarded Users out of Matched User", "onboarding_percentage", "%"),
+        ("Age ≤ 36 Months out of Onboarded users", "age_36_users"),
+        ("Activated Users out of Onboarded Users", "activated_users"),
+        ("% Activated Users out of Onboarded Users", "activated_percentage", "%"),
+        ("Last week WAU out of Activated Users", "wau_users"),
+        ("% WAU out of Activated Users", "wau_percentage", "%"),
+        ("Power Users out of Activated Users", "power_users"),
+        ("% Power Users out of Activated Users", "power_user_percentage", "%"),
     ]
 
     # Filter only existing metrics
