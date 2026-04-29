@@ -74,50 +74,54 @@ else:
 # -----------------------------
 # MAIN METRICS
 # -----------------------------
-st.subheader("📌 Key Metrics")
+st.subheader("Key Metrics")
 
-if not metrics_df.empty:
+if metrics_df.empty:
+    st.warning("No metrics data available")
+else:
     row = metrics_df.iloc[0]
 
     # -----------------------------
-# METRIC CONFIG BASED ON PAGE
-# -----------------------------
-if page == "BTP Analytics":
-    metrics = [
-        ("Total Users", "total_users"),
-        ("Onboarded Users", "onboarding_users"),
-        ("% Onboarding", "onboarding_percentage", "%"),
-        ("Avg Weeks Active", "avg_weeks_active", " weeks"),
-        ("Age ≤ 36 Months", "age_36_users"),
-        ("WAU (Last Week)", "wau_users"),
-        ("% WAU", "wau_percentage", "%"),
-        ("Power Users", "power_users"),
-        ("Power Users %", "power_user_percentage", "%"),
-        ("Activated Users", "activated_users"),
-        ("Activated %", "activated_percentage", "%"),
-    ]
+    # METRIC CONFIG BASED ON PAGE
+    # -----------------------------
+    if page == "BTP Analytics":
+        metrics = [
+            ("Total Users", "total_users"),
+            ("Onboarded Users", "onboarding_users"),
+            ("% Onboarding", "onboarding_percentage", "%"),
+            ("Avg Weeks Active", "avg_weeks_active", " weeks"),
+            ("Age ≤ 36 Months", "age_36_users"),
+            ("WAU (Last Week)", "wau_users"),
+            ("% WAU", "wau_percentage", "%"),
+            ("Power Users", "power_users"),
+            ("Power Users %", "power_user_percentage", "%"),
+        ]
 
-else:  # SS Analytics
-    metrics = [
-        ("Total DB Users", "total_users"),
-        ("Matched Users", "total_matched_users"),
-        ("Onboarded Users", "onboarding_users"),
-        ("% Onboarded Users out of Matched User", "onboarding_percentage", "%"),
-        ("Age ≤ 36 Months out of DB users", "age_36_users"),
-        ("Activated Users out of Onboarded Users", "activated_users"),
-        ("% Activated Users out of Onboarded Users", "activated_percentage", "%"),
-        ("Last week WAU out of Activated Users", "wau_users"),
-        ("% WAU out of Activated Users", "wau_percentage", "%"),
-        ("Power Users out of Activated Users", "power_users"),
-        ("% Power Users out of Activated Users", "power_user_percentage", "%"),
-    ]
+    else:  # SS Analytics
+        metrics = [
+            ("Total DB Users", "total_users"),
+            ("Matched Users", "total_matched_users"),
+            ("Onboarded Users", "onboarding_users"),
+            ("% Onboarded Users out of Matched User", "onboarding_percentage", "%"),
+            ("Age ≤ 36 Months out of DB users", "age_36_users"),
+            ("Activated Users out of Onboarded Users", "activated_users"),
+            ("% Activated Users out of Onboarded Users", "activated_percentage", "%"),
+            ("Last week WAU out of Activated Users", "wau_users"),
+            ("% WAU out of Activated Users", "wau_percentage", "%"),
+            ("Power Users out of Activated Users", "power_users"),
+            ("% Power Users out of Activated Users", "power_user_percentage", "%"),
+        ]
 
-    # Filter only existing metrics
+    # -----------------------------
+    # FILTER AVAILABLE METRICS
+    # -----------------------------
     available_metrics = [
         m for m in metrics if m[1] in row
     ]
 
-    # Display in rows of 4
+    # -----------------------------
+    # DISPLAY METRICS
+    # -----------------------------
     for i in range(0, len(available_metrics), 4):
         cols = st.columns(4)
         chunk = available_metrics[i:i+4]
@@ -129,7 +133,7 @@ else:  # SS Analytics
 
             value = row.get(key, 0)
 
-            # Format %
+            # Formatting
             if suffix == "%":
                 display_value = f"{value}%"
             elif suffix == " weeks":
