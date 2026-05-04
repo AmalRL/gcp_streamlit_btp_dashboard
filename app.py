@@ -100,7 +100,7 @@ else:
     else:  # SS Analytics
         metrics = [
             ("Total DB Users", "total_users"),
-            ("Matched Users", "total_matched_users"),
+            ("Total Target Users", "total_matched_users"),
             ("Onboarded Users", "onboarding_users"),
             ("% Onboarded Users out of Matched User", "onboarding_percentage", "%"),
             ("Age ≤ 36 Months out of DB users", "age_36_users"),
