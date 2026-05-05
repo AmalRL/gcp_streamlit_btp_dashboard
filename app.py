@@ -144,7 +144,7 @@ else:
             ("Total DB Users", "total_users"),
             ("Total Target Users", "total_matched_users"),
             ("Onboarded Users", "onboarding_users"),
-            ("% Onboarded Users out of Matched User", "onboarding_percentage", "%"),
+            ("% Onboarded Users out of Target User", "onboarding_percentage", "%"),
             ("Age ≤ 36 Months out of DB users", "age_36_users"),
             ("Activated Users out of Onboarded Users", "activated_users"),
             ("% Activated Users out of Onboarded Users", "activated_percentage", "%"),
