@@ -15,6 +15,48 @@ os.environ["SSL_CERT_FILE"] = certifi.where()
 os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
 
 # -----------------------------
+# PASSWORD PROTECTION
+# -----------------------------
+def check_password():
+    """Returns True if the user has entered the correct password."""
+    
+    def password_entered():
+        """Checks whether the password is correct."""
+        if st.session_state["password"] == os.environ.get("APP_PASSWORD", "default_password"):
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]  # Don't store the password
+        else:
+            st.session_state["password_correct"] = False
+
+    # First run or password not yet correct
+    if "password_correct" not in st.session_state:
+        st.text_input(
+            "Password", 
+            type="password", 
+            on_change=password_entered, 
+            key="password"
+        )
+        st.caption("Enter the password to access the dashboard")
+        return False
+    
+    # Password incorrect
+    elif not st.session_state["password_correct"]:
+        st.text_input(
+            "Password", 
+            type="password", 
+            on_change=password_entered, 
+            key="password"
+        )
+        st.error(":confused: Incorrect password")
+        return False
+    
+    # Password correct
+    else:
+        return True
+
+# Stop execution if password is wrong
+if not check_password():
+    st.stop()
 # CONFIG
 # -----------------------------
 BUCKET_NAME = "btpss-dashboard-data"
