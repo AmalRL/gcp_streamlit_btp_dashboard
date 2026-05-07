@@ -175,8 +175,13 @@ else:
             ("% Onboarding", "onboarding_percentage", "%"),
             ("Avg Weeks Active", "avg_weeks_active", " weeks"),
             ("Age ≤ 36 Months", "age_36_users"),
-            ("WAU (Last Week)", "wau_users"),
-            ("% WAU", "wau_percentage", "%"),
+
+            ("WAU ≤ 36 Months", "wau_36_users"),
+            ("% WAU ≤ 36 Months", "wau_36_percentage", "%"),
+
+            ("Overall WAU", "wau_users"),
+            ("% Overall WAU", "wau_percentage", "%"),
+
             ("Power Users", "power_users"),
             ("Power Users %", "power_user_percentage", "%"),
         ]
