@@ -294,7 +294,7 @@ if page == "BTP Analytics":
 
         # show percentage labels
         fig_wau.update_traces(
-            texttemplate='%{text:.2f}%',
+            texttemplate='%{text:.f}%',
             textposition="top center"
         )
 
