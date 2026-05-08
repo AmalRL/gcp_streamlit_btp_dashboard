@@ -151,6 +151,10 @@ else:
         "ss_interventions_4weeks.csv"
     )
 
+    wau_df = load_csv_from_gcp(
+        "ss_wau_chart.csv"
+    )
+
 # -----------------------------
 # MAIN METRICS
 # -----------------------------
@@ -272,53 +276,57 @@ else:
             col.metric(label, display_value)
 
 # -----------------------------
-# BTP WAU TREND
+# WAU TREND
 # -----------------------------
 if page == "BTP Analytics":
 
     st.subheader("📈 BTP WAU Trend")
 
-    if not wau_df.empty:
+else:
 
-        wau_df["week_start"] = pd.to_datetime(
-            wau_df["week_start"]
-        )
+    st.subheader("📈 SS WAU Trend")
 
-        wau_df = wau_df.sort_values(
-            "week_start"
-        )
+if not wau_df.empty:
 
-        fig_wau = px.line(
-            wau_df,
-            x="week_start",
-            y="wau_percentage",
-            markers=True,
-            text="wau_percentage",
-            title="Week-on-Week WAU %"
-        )
+    wau_df["week_start"] = pd.to_datetime(
+        wau_df["week_start"]
+    )
 
-        # show percentage labels
-        fig_wau.update_traces(
-            texttemplate='%{text:.f}%',
-            textposition="top center"
-        )
+    wau_df = wau_df.sort_values(
+        "week_start"
+    )
 
-        fig_wau.update_layout(
-            yaxis_title="WAU %",
-            xaxis_title="Week Start",
-            hovermode="x unified"
-        )
+    fig_wau = px.line(
+        wau_df,
+        x="week_start",
+        y="wau_percentage",
+        markers=True,
+        text="wau_percentage",
+        title="Week-on-Week WAU %"
+    )
 
-        st.plotly_chart(
-            fig_wau,
-            use_container_width=True
-        )
+    # show percentage labels
+    fig_wau.update_traces(
+        texttemplate='%{text:.f}%',
+        textposition="top center"
+    )
 
-    else:
+    fig_wau.update_layout(
+        yaxis_title="WAU %",
+        xaxis_title="Week Start",
+        hovermode="x unified"
+    )
 
-        st.warning(
-            "No WAU trend data available"
-        )
+    st.plotly_chart(
+        fig_wau,
+        use_container_width=True
+    )
+
+else:
+
+    st.warning(
+        "No WAU trend data available"
+    )
 
 # -----------------------------
 # INTERVENTION SECTION
