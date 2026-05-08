@@ -125,7 +125,7 @@ page = st.sidebar.selectbox(
 # -----------------------------
 if page == "BTP Analytics":
 
-    st.title("📊 BTP Analytics Dashboard")
+    st.title("𓊍 BTP Analytics Dashboard")
 
     metrics_df = load_csv_from_gcp(
         "btp_metrics.csv"
@@ -141,7 +141,7 @@ if page == "BTP Analytics":
 
 else:
 
-    st.title("📊 SS Analytics Dashboard")
+    st.title("𓊍 SS Analytics Dashboard")
 
     metrics_df = load_csv_from_gcp(
         "ss_metrics.csv"
@@ -280,11 +280,11 @@ else:
 # -----------------------------
 if page == "BTP Analytics":
 
-    st.subheader("📈 BTP WAU Trend")
+    st.subheader("📈 BTP WAU Trend on Onboarded Users")
 
 else:
 
-    st.subheader("📈 SS WAU Trend")
+    st.subheader("📈 SS WAU Trend on Activated Users")
 
 if not wau_df.empty:
 
