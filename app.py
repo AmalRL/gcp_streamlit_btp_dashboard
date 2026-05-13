@@ -125,7 +125,7 @@ page = st.sidebar.selectbox(
 # -----------------------------
 if page == "BTP Analytics":
 
-    st.title("📶 BTP Analytics Dashboard")
+    st.title("𓊍  BTP Analytics Dashboard")
 
     metrics_df = load_csv_from_gcp(
         "btp_metrics.csv"
@@ -397,7 +397,7 @@ last_sunday = (
 )
 
 selected_sunday = st.date_input(
-    "📅 Select Week Start (Sunday only)",
+    "Select Week Start (Sunday only)",
     value=last_sunday
 )
 
