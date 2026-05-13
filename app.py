@@ -158,6 +158,10 @@ else:
         "ss_wau_chart.csv"
     )
 
+    funnel_df = load_csv_from_gcp(
+        "ss_onboarding_funnel.csv"
+    )
+
 # -----------------------------
 # MAIN METRICS
 # -----------------------------
@@ -331,46 +335,52 @@ else:
         "No WAU trend data available"
     )
 # -----------------------------
-# BTP ONBOARDING FUNNEL
+# ONBOARDING FUNNEL
 # -----------------------------
 if page == "BTP Analytics":
 
     st.subheader("🪜 BTP Onboarding Funnel")
+    funnel_title = "BTP Onboarding Funnel"
 
-    if not funnel_df.empty:
+else:
 
-        fig_funnel = px.funnel(
-            funnel_df,
-            x="users",
-            y="stage",
-            text="users",
-            title="BTP Onboarding Funnel"
-        )
+    st.subheader("🪜 SS Onboarding Funnel")
+    funnel_title = "SS Onboarding Funnel"
 
-        fig_funnel.update_traces(
-            textposition="inside"
-        )
+if not funnel_df.empty:
 
-        fig_funnel.update_layout(
-            yaxis_title="",
-            xaxis_title="Users"
-        )
+    fig_funnel = px.funnel(
+        funnel_df,
+        x="users",
+        y="stage",
+        text="users",
+        title=funnel_title
+    )
 
-        st.plotly_chart(
-            fig_funnel,
-            use_container_width=True
-        )
+    fig_funnel.update_traces(
+        textposition="inside"
+    )
 
-        st.dataframe(
-            funnel_df,
-            use_container_width=True
-        )
+    fig_funnel.update_layout(
+        yaxis_title="",
+        xaxis_title="Users"
+    )
 
-    else:
+    st.plotly_chart(
+        fig_funnel,
+        use_container_width=True
+    )
 
-        st.warning(
-            "No onboarding funnel data available"
-        )
+    st.dataframe(
+        funnel_df,
+        use_container_width=True
+    )
+
+else:
+
+    st.warning(
+        "No onboarding funnel data available"
+    )
 # -----------------------------
 # INTERVENTION SECTION
 # -----------------------------
