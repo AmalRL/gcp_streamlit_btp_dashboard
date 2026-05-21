@@ -348,6 +348,10 @@ else:
     funnel_title = "SS Onboarding Funnel"
 
 if not funnel_df.empty:
+     # TEMPORARY: Hide Successfully Covered stage
+    funnel_df = funnel_df[
+        funnel_df["stage"] != "Successfully Covered"
+    ]
 
     fig_funnel = px.funnel(
         funnel_df,
