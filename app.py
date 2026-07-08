@@ -213,6 +213,10 @@ else:
                 "age_36_users"
             ),
             (
+                "Onboarded Users with Age > 36 Months",
+                "age_above_36_onboarded_users"
+            ),
+            (
                 "Activated Users out of Onboarded Users",
                 "activated_users"
             ),
@@ -222,20 +226,25 @@ else:
                 "%"
             ),
             (
-                "Last week WAU out of Activated Users",
+                "Last week WAU out of Onboarded Users",
                 "wau_users"
             ),
             (
-                "% WAU out of Activated Users",
+                "% WAU out of Onboarded Users",
                 "wau_percentage",
                 "%"
             ),
             (
-                "Power Users out of Activated Users",
+                "% WAU with Stimulation/Nutrition out of Last week WAU",
+                "stimulation_nutrition_wau_percentage",
+                "%"
+            ),
+            (
+                "Power Users out of Onboarded Users",
                 "power_users"
             ),
             (
-                "% Power Users out of Activated Users",
+                "% Power Users out of Onboarded Users",
                 "power_user_percentage",
                 "%"
             ),
