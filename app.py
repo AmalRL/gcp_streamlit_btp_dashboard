@@ -213,8 +213,8 @@ else:
                 "age_36_users"
             ),
             (
-                "Onboarded Users with Age > 36 Months",
-                "Graduated_Users"
+                "Graduated Users",
+                "age_above_36_onboarded_users"
             ),
             (
                 "Activated Users out of Onboarded Users",
@@ -235,8 +235,8 @@ else:
                 "%"
             ),
             (
-                "% WAU with Stimulation/Nutrition out of Last week WAU",
-                "stimulation_wau_percentage",
+                "% WAU on Stimulation out of Last week WAU",
+                "stimulation_nutrition_wau_percentage",
                 "%"
             ),
             (
